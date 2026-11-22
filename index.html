@@ -1334,7 +1334,7 @@ WIDGETS.watercup=box=>{
   const STEPS=['trig','pulse','math','lcd','branch','wait'];
   function measure(){
     const dist=13.6-lvl;                                // real distance sensor → water
-    const duration=Math.round(dist*58);                 // pulseIn() returns whole µs
+    const duration=Math.floor(dist*58);                 // pulseIn() returns whole µs
     const distance=duration/58.0;
     const w=13.6-distance, p=w/12*100;pct=p;
     setLCD('Water: '+w.toFixed(2)+' cm   ','Fill: '+p.toFixed(2)+' %   ');
