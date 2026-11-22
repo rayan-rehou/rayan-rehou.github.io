@@ -1,28 +1,38 @@
 # Rayan Rehou | Interactive Portfolio
 
-One-page portfolio laid out like an engineering datasheet. Every project has something visitors can operate:
+**Live site: [rayan-rehou.github.io](https://rayan-rehou.github.io)**
 
-- **Fig. 1 System map**: click a layer (Device, Network, Server, Data, Interface) to see which projects touch it.
-- **Football Analytics Explorer**: the original 56-second walkthrough video, plus links to the live dashboard and repo.
-- **4-Bit Digital Logic System**: a working 4-bit ALU (8 of the 16 ops) with Z/C/V/N flags, plus a modulo-60 BCD counter.
-- **Smart Temperature Monitor**: simulated DHT22 readings, adjustable alert threshold, serial-monitor log.
-- **Circuit Analysis**: RC low-pass filter with live Bode plot and cutoff frequency.
-- **Hand-Gesture Controller**: the 21 MediaPipe landmarks, with the planned palm and pinch gestures.
-- **Airline Reservation Simulator**: demo video of the 2024 beginner project (in French).
-- **Button-Controlled Traffic Light**: demo video plus a clickable simulation that follows the real ESP32 code and timing.
-- **Wi-Fi LED Controller**: demo video of the real test, plus a recreation of the ESP32's control page (Turn on / Flash / Turn off, network ESP32-Light, 192.168.4.1) driving a simulated LED.
-- An About section with relevant courses, how I work, and what I'm learning now.
-- A working terminal (`help`, `projects`, `open alu`, `contact`…), EN/FR toggle, light/dark theme.
+My portfolio as a Computer Engineering (Co-op) student at the University of Ottawa. Almost every project has something you can operate: a demo video of the real build, a simulation that follows my actual code, an interactive schematic, or a program that runs in the browser.
 
-All files sit at the top level next to `index.html` (no subfolders), so they can be uploaded to GitHub in one go. No build step.
+## Projects on the site
 
-## Run locally
-Open `index.html` in a browser, or run `python -m http.server 8000` and visit http://localhost:8000.
+**uORover work**
+- uORover Arm PID Motor Simulator: a motor simulation I wrote in Python and C++ to test PID before tuning the real rover arm
 
-## Publish on GitHub Pages
-1. Create a repo named `rayan-rehou.github.io`.
-2. Upload every file in this folder (select all, then drag them onto GitHub's upload page).
-3. Settings → Pages → Deploy from a branch → `main` / root.
+**ESP32 projects** ([code](https://github.com/rayan-rehou/ESP32-Projects))
+- Smart Temperature Monitor (in progress)
+- Sensor-Triggered Traffic Light Controller
+- Water Cup Level Indicator
+- Wi-Fi LED Controller
+- Multi-Mode LED Animation
+- Basic Traffic Light
 
-## Edit content
-All text lives in the `T`, `P`, `SKILLS`, `REV` and `AWARDS` objects near the top of the `<script>` in `index.html`, in English and French.
+**Python projects**
+- Airline Reservation System (Flask)
+- Premier League Analytics Dashboard ([live app](https://rayan-rehou-football-analytics.streamlit.app/))
+- Python Mini Projects
+- Hand-Gesture Controller (exploring computer vision)
+
+**Course projects**
+- StudyHub Android App
+- 8-Bit Processor on FPGA
+- 4-Bit Digital Logic System
+- Circuit Analysis & Measurement
+
+The site also has an About section, an English/French toggle and a light/dark theme.
+
+## How it's built
+
+One self-contained `index.html` (HTML, CSS and plain JavaScript, no build step), with the demo videos and images next to it. Hosted for free on GitHub Pages from the `main` branch.
+
+To run it locally, open `index.html` in a browser.
