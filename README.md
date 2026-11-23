@@ -19,7 +19,7 @@ My portfolio as a Computer Engineering (Co-op) student at the University of Otta
 
 **Python projects**
 - Airline Reservation System (Flask)
-- Premier League Analytics Dashboard ([live app](https://rayan-rehou-football-analytics.streamlit.app/))
+- Live Premier League Analytics Dashboard ([live app](https://rayan-rehou-football-analytics.streamlit.app/))
 - Python Mini Projects
 - Hand-Gesture Controller (exploring computer vision)
 
