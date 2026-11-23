@@ -569,6 +569,24 @@ body.locked{overflow:hidden}
 .wc-tbl tr[data-p]{cursor:pointer}.wc-tbl tr[data-p]:hover,.wc-tbl tr.sel{background:rgba(37,99,235,.12)}
 @media (max-width:860px){.wc-side{grid-template-columns:1fr}.wc-code{max-height:300px}.wc-schem .tsch{overflow-x:auto;contain:inline-size}.wc-schem .tsch svg{min-width:620px}}
 
+/* ===== joystick motor control ===== */
+.jg-scene{width:100%;height:auto;border-radius:8px;border:1px solid var(--line);display:block}
+.jg-leds{display:flex;align-items:center;gap:12px;flex-wrap:wrap;font-family:var(--f-mono);font-size:12px;color:var(--muted)}
+.jg-led{display:inline-flex;align-items:center;gap:5px}
+.jg-led i{width:12px;height:12px;border-radius:50%;background:#4a2326;display:inline-block}
+.jg-led.on i{background:#ff3b3b;box-shadow:0 0 9px #ff3b3b}
+.jg-ctrl{display:flex;flex-direction:column;gap:8px}
+.jg-track{position:relative;display:grid;grid-template-columns:39.9fr 9.8fr 50.3fr;height:26px;border:1px solid var(--line);border-radius:4px;overflow:hidden;font-family:var(--f-mono);font-size:11px}
+.jg-track .z{display:flex;align-items:center;justify-content:center;color:var(--ink)}
+.jg-track .l{background:rgba(37,99,235,.14)}.jg-track .s{background:var(--line)}.jg-track .r{background:rgba(234,88,12,.14)}
+.jg-mark{position:absolute;top:0;bottom:0;width:3px;margin-left:-1px;background:var(--ink)}
+.jg-ctrl input[type=range]{width:100%}
+.jg-hold{font-size:12.5px;display:inline-flex;align-items:center;gap:4px}
+.jg-read{display:flex;flex-wrap:wrap;gap:6px 16px;font-family:var(--f-mono);font-size:12px;border:1px solid var(--line);border-radius:6px;padding:8px 12px;background:var(--panel)}
+.jg-serial{height:170px}
+.jg-code{max-height:360px}
+@media (max-width:860px){.jg-code{max-height:260px}}
+
 /* ===== StudyHub mock ===== */
 .sh-wrap{display:grid;grid-template-columns:300px minmax(0,1fr);gap:22px;align-items:start}
 .sh-phone{background:#0f172a;border-radius:30px;padding:12px 12px 10px;border:8px solid #111827;box-shadow:var(--shadow);color:#e5e7eb;display:flex;flex-direction:column;min-height:520px}
@@ -740,6 +758,7 @@ const CATS=[
 {id:'course',ic:'🎓',en:['Course projects','Hardware design and lab work from my uOttawa courses.'],fr:['Projets de cours','Conception matérielle et laboratoires de mes cours à l’Université d’Ottawa.']}
 ];
 const META={
+jogctl:{cat:'rover',img:'joystick-motor-poster.webp',has:['video','sim','code'],en:'A joystick that drives a stepper motor with a dead zone, speed control, angle tracking and ±180° limits.',fr:'Un joystick qui pilote un moteur pas à pas avec zone morte, contrôle de vitesse, suivi d’angle et limites à ±180°.'},
 pidsim:{cat:'rover',art:['🤖','PID · uORover'],has:['sim','code'],en:'A fake motor I coded in Python and C++ to learn PID before tuning the real rover arm.',fr:'Un moteur simulé, codé en Python et en C++, pour apprendre le PID avant de régler le vrai bras du rover.'},
 iot:{cat:'esp32',art:['🌡️','ESP32 · DHT22'],has:['sim'],en:'An ESP32 that sends temperature readings to the cloud, with a live dashboard on the way.',fr:'Un ESP32 qui envoie ses mesures de température dans le nuage, avec un tableau de bord en direct en préparation.'},
 airline:{cat:'python',img:'airline-poster.webp',has:['video'],en:'A Python booking system with customer and employee roles, now with a Flask web version.',fr:'Un système de réservation Python avec rôles client et employé, maintenant avec une version web Flask.'},
@@ -761,6 +780,10 @@ const P=[
  en:{t:'uORover Arm PID Motor Simulator',s:'Before tuning PID on the robotic arm’s real motors, I coded a fake motor in Python and C++ to see how PID works. Play with the gains below and watch the motor react.',p:['Modelled a motor where push speeds it up and friction slows it down, updated every 0.01 s.','Wrote a P + I controller and tested 8 tunings, from open loop to unstable.','Best tuning (kp = 20, ki = 10): no overshoot, settled in about 0.2 s.'],l:[['Code on GitHub','https://github.com/rayan-rehou/uORover-PID-Motor-Simulator']],n:'A learning model: a real motor has a torque limit and noisy encoders, so the numbers don’t transfer, but the method does.'},
  fr:{t:'Simulateur PID de moteur pour le bras uORover',s:'Avant de régler le PID sur les vrais moteurs du bras robotique, j’ai codé un moteur simulé en Python et en C++ pour voir comment le PID fonctionne. Jouez avec les gains ci-dessous.',p:['Modèle de moteur : la poussée l’accélère et la friction le ralentit, mis à jour toutes les 0,01 s.','Contrôleur P + I testé avec 8 réglages, de la boucle ouverte à l’instabilité.','Meilleur réglage (kp = 20, ki = 10) : aucun dépassement, stabilisé en environ 0,2 s.'],l:[['Code sur GitHub','https://github.com/rayan-rehou/uORover-PID-Motor-Simulator']],n:'Un modèle d’apprentissage : un vrai moteur a un couple maximal et des encodeurs bruités, donc les chiffres ne se transfèrent pas, mais la méthode oui.'},
  tags:['Python','C++','PID control','Matplotlib','uORover']},
+{id:'jogctl',st:'built',code:'ESP32 / C++ | uORover 2026',
+ en:{t:'Joystick Motor Control (Jog Prototype)',s:'A prototype to practise jog control for the uORover arm’s joints: a joystick drives a stepper motor, faster the further you push, and the ESP32 tracks the angle, stops at ±180° and sets zero with a click. Move the joystick below.',p:['Read the joystick on the ESP32’s ADC (0 to 4095), measured its real centre (about 1835) and set a dead zone of 1635 to 2035 so the motor stays still when released.','Drove a 28BYJ-48 stepper through a ULN2003 board with the 4-step coil sequence, and used map() to turn the stick into 20 ms (slow) to 2 ms (fast) per step.','Counted every step to track the angle (2048 steps = 360°), stopped at ±180° like a real joint, and made a stick click set the current spot as zero.','Printed the angle 5 times per second with millis(), so the Serial Monitor never slows the motor.'],l:[],n:'A learning prototype on a hobby stepper: the real arm uses moteus brushless controllers, but the jog ideas (dead zone, speed command, limits, zero) are the same.'},
+ fr:{t:'Contrôle de moteur par joystick (prototype de jog)',s:'Un prototype pour pratiquer le contrôle « jog » des articulations du bras uORover : un joystick pilote un moteur pas à pas, plus vite à mesure qu’on pousse, et l’ESP32 suit l’angle, s’arrête à ±180° et remet à zéro d’un clic. Bougez le joystick ci-dessous.',p:['Lecture du joystick sur le CAN de l’ESP32 (0 à 4095), centre réel mesuré (environ 1835) et zone morte de 1635 à 2035 pour que le moteur reste immobile quand on lâche.','Moteur pas à pas 28BYJ-48 piloté par une carte ULN2003 avec la séquence de 4 pas, et map() pour convertir le stick en 20 ms (lent) à 2 ms (rapide) par pas.','Chaque pas est compté pour suivre l’angle (2048 pas = 360°), arrêt à ±180° comme une vraie articulation, et un clic sur le stick fixe la position actuelle comme zéro.','Affichage de l’angle 5 fois par seconde avec millis(), pour que le moniteur série ne ralentisse jamais le moteur.'],l:[],n:'Un prototype d’apprentissage sur un moteur de loisir : le vrai bras utilise des contrôleurs moteus sans balais, mais les idées du jog (zone morte, consigne de vitesse, limites, zéro) sont les mêmes.'},
+ tags:['ESP32','C++ (Arduino)','Stepper motor','ADC','uORover']},
 {id:'iot',st:'wip',code:'ESP32 / IoT | 2026',
  en:{t:'Smart Temperature Monitor',s:'An ESP32 that reads temperature and humidity from a DHT22 sensor and sends the readings to ThingSpeak. Next: a Python backend that stores them in SQLite and a Streamlit dashboard with live graphs and alerts. The simulation below shows the planned alert.',p:['Programmed an ESP32 in C++ (Arduino framework) to read a DHT22 sensor, testing it in Wokwi before wiring real parts.','Sent the readings over Wi-Fi to ThingSpeak, where they are logged and graphed online.','Building a Python backend that stores the readings in SQLite and a Streamlit dashboard that alerts when it’s too hot.'],l:[],n:'Simulated readings. The Streamlit dashboard is in progress.'},
  fr:{t:'Moniteur de température intelligent',s:'Un ESP32 qui lit la température et l’humidité d’un capteur DHT22 et envoie les mesures vers ThingSpeak. Prochaine étape : un backend Python qui les enregistre dans SQLite et un tableau de bord Streamlit avec graphiques en direct et alertes. La simulation ci-dessous montre l’alerte prévue.',p:['ESP32 programmé en C++ (Arduino) pour lire un capteur DHT22, testé dans Wokwi avant le montage réel.','Envoi des mesures par Wi-Fi vers ThingSpeak, où elles sont enregistrées et affichées en graphique.','En cours : un backend Python qui enregistre les mesures dans SQLite et un tableau de bord Streamlit qui alerte quand il fait trop chaud.'],l:[],n:'Mesures simulées. Le tableau de bord Streamlit est en cours.'},
@@ -1473,6 +1496,149 @@ WIDGETS.watercup=box=>{
   const bugs=fr?[['Niveaux logiques','ECHO sort en 5 V : diviseur avec trois résistances de 1 kΩ pour le ramener à 3,3 V'],['Bloqué à 100 %','broches Trig/Echo différentes du code, puis fils VCC/GND du capteur manquants'],['Valeurs négatives','calibré la distance du gobelet vide (13,6 cm) à part de sa hauteur (12 cm)'],['Buzzer et DEL muets','aucun retour à la masse : chaque pièce doit être reliée à GND']]
                 :[['Logic levels','ECHO is 5 V: built a divider from three 1 kΩ resistors to bring it down to 3.3 V'],['Stuck at 100 %','Trig/Echo pins didn’t match the code, then the sensor’s VCC/GND wires were missing'],['Negative readings','calibrated the empty-cup distance (13.6 cm) separately from the cup height (12 cm)'],['Silent buzzer and LEDs','no ground connection: every part needs a path back to GND']];
   box.append(el('div',{class:'bugs'},el('span',{class:'lab'},fr?'Problèmes réglés':'Bugs I fixed'),el('div',{class:'bug-grid'},...bugs.map(([a,b])=>el('div',{class:'bug'},el('b',{},a),el('span',{},b))))));
+};
+
+const JOG_INO="const int IN1 = 26;\nconst int IN2 = 25;\nconst int IN3 = 33;\nconst int IN4 = 27;\n\n// which coils are ON (1) or OFF (0) at each of the 4 clicks        (the table is in the datasheet, its just how it is)\nconst int SEQ[4][4] = {\n  {1, 1, 0, 0},   // click 0\n  {0, 1, 1, 0},   // click 1\n  {0, 0, 1, 1},   // click 2\n  {1, 0, 0, 1}    // click 3\n};\n\nconst long LIMIT = 1024;       // 1024 clicks = 180 degrees, the furthest it can go each way\n\nint step = 0;   // which row we're on\nlong position = 0;             // total clicks from the start (+ right, - left)\nunsigned long lastPrint = 0;   // last time we printed the angle\n\n// turn on the coils for the current row\nvoid writeStep() {\n  digitalWrite(IN1, SEQ[step][0]);\n  digitalWrite(IN2, SEQ[step][1]);\n  digitalWrite(IN3, SEQ[step][2]);\n  digitalWrite(IN4, SEQ[step][3]);\n}\nvoid setup() {\n  pinMode(13, OUTPUT);\n  digitalWrite(13, HIGH);   // joystick power (3.3V)\n\n  pinMode(32, INPUT_PULLUP);   // joystick button (HIGH = not pressed, LOW = pressed)\n\n  pinMode(IN1, OUTPUT);\n  pinMode(IN2, OUTPUT);\n  pinMode(IN3, OUTPUT);\n  pinMode(IN4, OUTPUT);\n\n  Serial.begin(115200);\n\n}\n\nvoid loop() {\n  int x = analogRead(34);\n\n  if (digitalRead(32) == LOW) {   // button pressed\n    position = 0;                 // the current spot becomes the new zero\n    Serial.println(\"Zero set\");\n    delay(300);                   // wait so one click isn't counted many times\n  }\n\n  if (x > 2035 && position < LIMIT) {            // RIGHT        // only if not at +180\n    step = step + 1;\n    if (step > 3) step = 0;   // after row 3, go back to row 0\n    writeStep();\n    position = position + 1;    // one click right\n    int wait = map(x, 2035, 4095, 20, 2);     // x = joystick, 2035 = barely right, 4095 = full right, 20 = slow wait, 2 = fast wait\n    delay(wait);\n  }\n  else if (x < 1635 && position > -LIMIT) {       // LEFT        // only if not at -180\n    step = step - 1;\n    if (step < 0) step = 3;   // before row 0, go back to row 3\n    writeStep();\n    position = position - 1;   // one click left\n    int wait = map(x, 1635, 0, 20, 2);       // x = joystick, 1635 = barely left, 0 = full left, 20 = slow wait, 2 = fast wait\n    delay(wait);\n  }\n  else {          // STOP\n    delay(3);\n  }\n\n\nif (millis() - lastPrint > 200) {\n    float angle = position * 360.0 / 2048;   // 2048 clicks = 360 degrees\n    Serial.println(angle);\n    lastPrint = millis();\n  }\n}\n";
+WIDGETS.jogctl=box=>{
+  const fr=lang==='fr',L=(e,f)=>fr?f:e;
+  const MONO='JetBrains Mono,IBM Plex Mono,DejaVu Sans Mono,monospace';
+  const tx=(x,y,t,at={})=>{const n=sv('text',Object.assign({x,y,'font-family':MONO,'font-size':11},at));n.textContent=t;return n};
+
+  // ---- 1. real demo video ----
+  box.append(el('div',{class:'video'},el('video',{controls:true,preload:'metadata',playsinline:true,muted:true,poster:'joystick-motor-poster.webp','aria-label':L('Joystick motor control on the real board','Contrôle du moteur par joystick sur la vraie carte')},el('source',{src:'joystick-motor-demo.mp4',type:'video/mp4'}))),
+    el('p',{class:'cap'},L('Filmed on the real board · 0:39 · no sound','Filmé sur la vraie carte · 0:39 · sans son')));
+
+  // ---- 2. the idea in three chips ----
+  const idea=(k,t)=>el('div',{class:'box',style:'padding:10px 12px'},el('b',{style:'font-family:var(--f-mono);font-size:13px'},k),el('div',{style:'font-size:13px;margin-top:2px'},t));
+  box.append(el('div',{style:'display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:10px;margin:14px 0'},
+    idea('1635 < x < 2035 → STOP',L('Dead zone around my joystick’s measured centre (about 1835)','Zone morte autour du centre mesuré de mon joystick (environ 1835)')),
+    idea('map(x, …, 20, 2)',L('Barely pushed = 20 ms per step, fully pushed = 2 ms','À peine poussé = 20 ms par pas, poussé à fond = 2 ms')),
+    idea('2048 steps = 360°',L('Counting steps gives the angle; it stops at ±180°','Compter les pas donne l’angle ; arrêt à ±180°'))));
+
+  // ---- code helpers ----
+  const LINES=JOG_INO.replace(/\n$/,'').split('\n');
+  const esc2=t=>t.replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));
+  const hl=line=>{const i=line.indexOf('//');const code=i>=0?line.slice(0,i):line,com=i>=0?line.slice(i):'';
+    return esc2(code).replace(/\b(const|int|long|float|void|if|else|unsigned)\b/g,'<span class="kw">$1</span>').replace(/\b(HIGH|LOW|OUTPUT|INPUT_PULLUP)\b/g,'<span class="cn">$1</span>').replace(/\b(\d+(?:\.\d+)?)\b/g,'<span class="nu">$1</span>')+(com?'<span class="cm">'+esc2(com)+'</span>':'')};
+  const codeHTML=()=>LINES.map(l=>'<span class="ln">'+hl(l)+'</span>').join('');
+  const find=(s,from=0)=>{for(let i=from;i<LINES.length;i++)if(LINES[i].includes(s))return i;return -1};
+  const closeOf=i=>{let d=0;for(let k=i;k<LINES.length;k++){for(const ch of LINES[k]){if(ch==='{')d++;if(ch==='}'){d--;if(d===0)return k}}}return i};
+  const L0=find('void loop()');
+  const blk=s=>{const a=find(s,L0);return [a,closeOf(a)]};
+  const R={zero:blk('if (digitalRead(32) == LOW)'),right:blk('if (x > 2035'),left:blk('else if (x < 1635'),stop:blk('else {'),print:blk('if (millis() - lastPrint')};
+
+  // ---- 3. simulation (same logic as the .ino) ----
+  const SEQ=[[1,1,0,0],[0,1,1,0],[0,0,1,1],[1,0,0,1]],LIMIT=1024,CENTRE=1835;
+  const mapI=(x,a,b,c,d)=>Math.trunc((x-a)*(d-c)/(b-a))+c;   // Arduino map(): whole numbers
+  let stick=CENTRE,hold=false,step=0,position=0,simT=0,lastPrint=0,real0=null,pendingClick=false,branch='stop',lastWait=3,zeroUntil=-1,raf=null;
+  const lines=[];
+
+  // scene
+  const CX=180,CY=150;
+  const scene=sv('svg',{viewBox:'0 0 360 300',class:'jg-scene',role:'img','aria-label':L('Stepper motor with an arm, seen from above','Moteur pas à pas avec un bras, vu de dessus')});
+  scene.append(sv('rect',{width:360,height:300,fill:'#1b2126'}));
+  const dial=sv('g');
+  for(let a=-180;a<=180;a+=30){const r=a*Math.PI/180,big=a%90===0;
+    dial.append(sv('line',{x1:CX+Math.sin(r)*112,y1:CY-Math.cos(r)*112,x2:CX+Math.sin(r)*(big?126:120),y2:CY-Math.cos(r)*(big?126:120),stroke:'#5b6770','stroke-width':big?2:1}))}
+  dial.append(tx(CX,CY-132,'0°',{fill:'#cfd8de','text-anchor':'middle'}),tx(CX+134,CY+4,'+90°',{fill:'#cfd8de'}),tx(CX-134,CY+4,'−90°',{fill:'#cfd8de','text-anchor':'end'}));
+  dial.append(sv('line',{x1:CX,y1:CY+108,x2:CX,y2:CY+130,stroke:'#ef4444','stroke-width':4,'stroke-linecap':'round'}),tx(CX,CY+146,L('±180° limit','limite ±180°'),{fill:'#fca5a5','text-anchor':'middle','font-size':10.5}));
+  scene.append(dial);
+  scene.append(sv('rect',{x:CX-96,y:CY-14,width:192,height:28,rx:14,fill:'#9aa3ab'}),sv('circle',{cx:CX-84,cy:CY,r:6,fill:'#1b2126'}),sv('circle',{cx:CX+84,cy:CY,r:6,fill:'#1b2126'}),
+    sv('circle',{cx:CX,cy:CY,r:62,fill:'#c3c9cf',stroke:'#7c868e','stroke-width':2}),sv('rect',{x:CX-40,y:CY+50,width:80,height:22,rx:4,fill:'#2f5fa8'}),
+    sv('circle',{cx:CX,cy:CY-14,r:16,fill:'#d7dce0',stroke:'#7c868e'}));
+  const arm=sv('g');
+  arm.append(sv('rect',{x:CX-15,y:CY-14-104,width:30,height:118,rx:12,fill:'#6b7076',stroke:'#3f4448','stroke-width':1.5}),sv('circle',{cx:CX,cy:CY-14,r:7,fill:'#e2c27a',stroke:'#8a6d2a'}));
+  scene.append(arm);
+  const angTxt=tx(14,24,'',{fill:'#e7eef2','font-size':15,'font-weight':700}),stTxt=tx(14,44,'',{fill:'#9fb0bb','font-size':11});
+  scene.append(angTxt,stTxt);
+
+  // driver LEDs
+  const leds=['A','B','C','D'].map(n=>el('span',{class:'jg-led'},el('i'),n));
+  const ledRow=el('div',{class:'jg-leds'},el('span',{class:'lab'},'ULN2003'),...leds);
+
+  // joystick control
+  const rng=el('input',{type:'range',min:'0',max:'4095',step:'1',value:String(CENTRE),'aria-label':L('Joystick left/right (VRx)','Joystick gauche/droite (VRx)')});
+  const mark=el('i',{class:'jg-mark'});
+  const track=el('div',{class:'jg-track'},el('span',{class:'z l'},L('LEFT','GAUCHE')),el('span',{class:'z s'},'STOP'),el('span',{class:'z r'},L('RIGHT','DROITE')),mark);
+  const holdBox=el('input',{type:'checkbox'});
+  const clickB=el('button',{type:'button',class:'sbtn'},L('Click the stick (SW)','Cliquer le stick (SW)'));
+  const resetB=el('button',{type:'button',class:'sbtn'},L('Reset','Réinitialiser'));
+  const rd=el('div',{class:'jg-read'});
+
+  // serial monitor + code
+  const serial=el('div',{class:'serial jg-serial','aria-live':'off'});
+  const code=el('code',{html:codeHTML()}),pre=el('pre',{class:'inocode xcode jg-code'},code);
+  let curHL='';
+  function highlight([a,b]){const key=a+'-'+b;if(key===curHL)return;curHL=key;
+    $$('.ln',code).forEach((n,i)=>n.classList.toggle('hl',i>=a&&i<=b));
+    const t=$$('.ln',code)[a];if(t){const top=t.getBoundingClientRect().top-pre.getBoundingClientRect().top+pre.scrollTop-pre.clientHeight*0.25;pre.scrollTo({top:Math.max(0,top),behavior:reduce?'auto':'smooth'})}}
+
+  box.append(el('div',{class:'xsim'},
+    el('div',{class:'xleft'},el('span',{class:'lab'},L('Try it: move the joystick','Essayez : bougez le joystick')),scene,ledRow,
+      el('div',{class:'jg-ctrl'},track,rng,
+        el('div',{class:'ctrl-row'},el('label',{class:'jg-hold'},holdBox,L(' keep the stick where I leave it',' garder le stick là où je le laisse')),clickB,resetB)),
+      rd),
+    el('div',{class:'xright'},el('span',{class:'lab'},L('Serial Monitor · 115200 baud','Moniteur série · 115200 bauds')),serial,
+      el('span',{class:'lab',style:'margin-top:10px'},L('The code running right now','Le code exécuté en ce moment')),pre)));
+
+  function println(s){lines.push(s);if(lines.length>40)lines.shift();
+    serial.replaceChildren(...lines.map(t=>el('div',{class:t==='Zero set'?'al':''},t)))}
+
+  // one pass of loop(), exactly like the sketch
+  function iter(){
+    const x=Math.max(0,Math.min(4095,Math.round(stick+(Math.random()*8-4))));   // real readings wobble a few counts
+    if(pendingClick){pendingClick=false;position=0;println('Zero set');simT+=300;zeroUntil=simT+400}
+    if(x>2035&&position<LIMIT){step=(step+1)%4;position++;lastWait=mapI(x,2035,4095,20,2);simT+=lastWait;branch='right'}
+    else if(x<1635&&position>-LIMIT){step=(step+3)%4;position--;lastWait=mapI(x,1635,0,20,2);simT+=lastWait;branch='left'}
+    else{simT+=3;branch=(x>2035||x<1635)?'limit':'stop';lastWait=3}
+    if(simT-lastPrint>200){println((position*360/2048).toFixed(2));lastPrint=simT}
+  }
+
+  function draw(){
+    const ang=position*360/2048;
+    arm.setAttribute('transform',`rotate(${ang} ${CX} ${CY-14})`);
+    angTxt.textContent=(ang>=0?'+':'')+ang.toFixed(1)+'°';
+    const zero=simT<zeroUntil;
+    const st=zero?L('ZERO SET','ZÉRO RÉGLÉ'):branch==='right'?L('RIGHT','DROITE'):branch==='left'?L('LEFT','GAUCHE'):branch==='limit'?L('AT LIMIT','EN BUTÉE'):'STOP';
+    stTxt.textContent=st+(branch==='right'||branch==='left'?'  ·  '+lastWait+' ms/'+L('step','pas'):'');
+    SEQ[step].forEach((on,i)=>leds[i].classList.toggle('on',!!on));
+    mark.style.left=(stick/4095*100)+'%';
+    rd.innerHTML=`<span>x = <b>${Math.round(stick)}</b></span><span>position = <b>${position}</b> ${L('steps','pas')}</span><span>${L('wait','attente')} = <b>${lastWait} ms</b></span>`;
+    highlight(zero?R.zero:(R[branch==='limit'?'stop':branch]||R.stop));
+  }
+
+  function frame(now){
+    if(real0===null)real0=now-simT;
+    if(!hold&&!dragging){stick+=(CENTRE-stick)*0.35;if(Math.abs(stick-CENTRE)<2)stick=CENTRE;rng.value=Math.round(stick)}
+    let target=now-real0;if(target-simT>250){real0=now-simT-250;target=simT+250}
+    let n=0;while(simT<target&&n<3000){iter();n++}
+    draw();raf=requestAnimationFrame(frame);
+  }
+
+  let dragging=false;
+  rng.addEventListener('pointerdown',()=>{dragging=true});
+  const release=()=>{dragging=false};
+  rng.addEventListener('pointerup',release);rng.addEventListener('pointercancel',release);rng.addEventListener('blur',release);
+  rng.addEventListener('input',()=>{stick=+rng.value});
+  rng.addEventListener('keydown',()=>{dragging=true});rng.addEventListener('keyup',release);
+  holdBox.addEventListener('change',()=>{hold=holdBox.checked});
+  clickB.addEventListener('click',()=>{pendingClick=true});
+  resetB.addEventListener('click',()=>{position=0;step=0;stick=CENTRE;rng.value=CENTRE;lines.length=0;serial.replaceChildren();branch='stop';zeroUntil=-1});
+
+  draw();raf=requestAnimationFrame(frame);
+  cleanups.push(()=>cancelAnimationFrame(raf));
+
+  // ---- 4. wiring ----
+  const rows=[['Joystick VRx','D34'],['Joystick SW','D32 (INPUT_PULLUP)'],['Joystick +',L('D13 set HIGH (3.3 V)','D13 mis à HIGH (3,3 V)')],['Joystick GND','GND'],
+    ['ULN2003 IN1 / IN2 / IN3 / IN4','D26 / D25 / D33 / D27'],['ULN2003 + / −','VIN (5 V) / GND'],['28BYJ-48',L('plugs into the ULN2003 board','se branche sur la carte ULN2003')]];
+  box.append(el('div',{class:'box',style:'margin-top:14px'},el('span',{class:'lab'},L('Wiring (all on the left side of the ESP32)','Câblage (tout sur le côté gauche de l’ESP32)')),
+    el('table',{class:'wc-tbl'},el('tbody',{},...rows.map(([a,b])=>el('tr',{},el('td',{},a),el('td',{},b)))))));
+
+  // ---- 5. full code ----
+  const full=el('pre',{class:'inocode'},el('code',{html:codeHTML()}));
+  const copyB=el('button',{type:'button',class:'sbtn',onclick:async()=>{try{await navigator.clipboard.writeText(JOG_INO);copyB.textContent=L('Copied','Copié')}catch(e){}}},L('Copy code','Copier le code'));
+  box.append(el('details',{class:'inobox'},el('summary',{},el('span',{},L('See the full code · Joystick_Motor_Control.ino (C++)','Voir tout le code · Joystick_Motor_Control.ino (C++)')),el('small',{},LINES.length+L(' lines',' lignes'))),
+    el('div',{class:'inobar'},copyB),full));
 };
 
 WIDGETS.studyhub=box=>{
